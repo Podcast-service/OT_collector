@@ -10,14 +10,11 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  # внутренние метрики коллектора (его собственное здоровье)
   - job_name: 'otel-collector-internal'
     scrape_interval: 30s
     static_configs:
       - targets: ['otel-collector:8888']
 
-  # метрики, которые коллектор экспортирует из всех микросервисов
-  # (то, что приходит к нему по OTLP, конвертируется в Prom-формат)
   - job_name: 'otel-collector-exported'
     scrape_interval: 15s
     honor_labels: true

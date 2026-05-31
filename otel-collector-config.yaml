@@ -14,15 +14,6 @@ receivers:
             - "*"
           max_age: 7200
 
-  # метрики самого коллектора
-  prometheus:
-    config:
-      scrape_configs:
-        - job_name: 'otel-collector'
-          scrape_interval: 30s
-          static_configs:
-            - targets: ['0.0.0.0:8888']
-
   # метрики хоста (CPU/RAM/диск/сеть контейнера)
   hostmetrics:
     collection_interval: 30s
@@ -35,7 +26,6 @@ receivers:
       load: {}
 
 processors:
-  # ВАЖНО: memory_limiter всегда первым в pipeline
   memory_limiter:
     check_interval: 5s
     limit_percentage: 80
@@ -56,21 +46,18 @@ processors:
         value: otel-collector
         action: insert
 
-  # подстрахуемся, если сервис не выставил service.name
   resource/fallback:
     attributes:
       - key: service.name
         value: unknown_service
         action: insert
 
-  # пример фильтрации шумных метрик (можно расширять)
   filter/metrics:
     error_mode: ignore
     metrics:
       metric:
         - 'IsMatch(name, "^process\\.runtime\\.go\\.gc\\.pause_ns$")'
 
-  # tail-сэмплинг трейсов: всегда оставляем ошибки и медленные, остальное 10%
   tail_sampling:
     decision_wait: 10s
     num_traces: 50000
@@ -87,26 +74,25 @@ processors:
         probabilistic: { sampling_percentage: 10 }
 
 exporters:
-  # трейсы → Jaeger по OTLP
+  # трейсы
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
 
-  # метрики → Prometheus (он скрейпит этот endpoint)
+  # метрики
   prometheus:
     endpoint: 0.0.0.0:8889
     resource_to_telemetry_conversion:
       enabled: true
     enable_open_metrics: true
 
-  # логи → Loki по OTLP
+  # логи
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
     tls:
       insecure: true
 
-  # debug только при необходимости
   debug:
     verbosity: basic
     sampling_initial: 5
@@ -136,7 +122,7 @@ service:
       exporters: [otlp/jaeger]
 
     metrics:
-      receivers: [otlp, prometheus, hostmetrics]
+      receivers: [otlp, hostmetrics]
       processors: [memory_limiter, resource, resource/fallback, filter/metrics, batch]
       exporters: [prometheus]
 
