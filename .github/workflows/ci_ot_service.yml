@@ -17,7 +17,7 @@ jobs:
 
       - name: Copy files to server
         run: |
-          cp -r . /home/deploy/otel-stack
+          rsync -av --exclude='.git' . /home/deploy/otel-stack/
 
       - name: Deploy OTel stack
         run: |
