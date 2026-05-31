@@ -1,0 +1,26 @@
+name: Deploy OTel stack
+
+on:
+  pull_request:
+    branches: [ main ]
+    types:
+      - closed
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Copy files to server
+        run: |
+          cp -r . /home/deploy/otel-stack
+
+      - name: Deploy OTel stack
+        run: |
+          docker compose \
+            -f /home/deploy/otel-stack/docker-compose.yml \
+            up -d
