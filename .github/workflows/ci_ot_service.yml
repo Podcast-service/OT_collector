@@ -22,5 +22,5 @@ jobs:
       - name: Deploy OTel stack
         run: |
           docker compose \
-            -f /home/deploy/otel-stack/docker-compose.yml \
+            -f /home/deploy/otel-stack/docker-compose.yaml \
             up -d
