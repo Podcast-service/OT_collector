@@ -54,6 +54,7 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
       - METRICS_STORAGE_TYPE=prometheus
       - PROMETHEUS_SERVER_URL=http://prometheus:9090
+      - QUERY_BASE_PATH=/jaeger
     networks: [otel]
     logging: *default-logging
     restart: unless-stopped
