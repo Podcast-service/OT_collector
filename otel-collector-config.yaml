@@ -71,7 +71,7 @@ processors:
         latency: { threshold_ms: 500 }
       - name: probabilistic-policy
         type: probabilistic
-        probabilistic: { sampling_percentage: 10 }
+        probabilistic: { sampling_percentage: 100 }
 
 exporters:
   # трейсы
